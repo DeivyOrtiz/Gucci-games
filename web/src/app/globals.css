@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-bg-primary: #F8F9FA;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-elevated: #F1F3F5;
+  --color-border: #E4E4E7;
+  --color-border-hover: #D4D4D8;
+  --color-accent-gold: #CA8A04;
+  --color-accent-gold-dark: #A16207;
+  --color-accent-blue: #0284C7;
+  --color-accent-blue-dark: #0369A1;
+  --color-text-primary: #09090B;
+  --color-text-secondary: #52525B;
+  --color-text-muted: #71717A;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  color-scheme: light;
+}
+
+.dark {
+  --color-bg-primary: #0A0A0D;
+  --color-bg-surface: #141418;
+  --color-bg-elevated: #1B1B22;
+  --color-border: #27272A;
+  --color-border-hover: #3F3F46;
+  --color-accent-gold: #FACC15;
+  --color-accent-gold-dark: #F59E0B;
+  --color-accent-blue: #0284C7;
+  --color-accent-blue-dark: #0369A1;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Hide scrollbar for product sliders */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom scrollbar for main content */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-hover);
+  border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-gold);
+}
+
+/* Neon glow animations */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(250, 204, 21, 0.3), 0 0 20px rgba(250, 204, 21, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.3); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.neon-pulse { animation: neon-pulse 2s ease-in-out infinite; }
+.float { animation: float 3s ease-in-out infinite; }
