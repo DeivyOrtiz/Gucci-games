@@ -168,6 +168,16 @@ export function Header({
 
           {/* Right: Theme Toggle & User / Profile Area */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {/* Install App Link */}
+            <a
+              href="#descargar-app"
+              className="hidden sm:flex items-center gap-1.5 bg-amber-400/10 hover:bg-amber-400/20 text-amber-600 dark:text-[#FACC15] border border-amber-400/30 dark:border-[#FACC15]/30 rounded-xl px-3 py-1.5 text-xs font-black transition-all hover:scale-105"
+              title="Descargar App Oficial Gucci Games"
+            >
+              <span>📱</span>
+              <span>App</span>
+            </a>
+
             {/* Theme Toggle Button (Light / Dark) */}
             <ThemeToggle id="header-theme-toggle" />
 

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gucci Games - Descargar App Oficial</title>
+  <meta name="description" content="Descarga la aplicación oficial de Gucci Games para Android e iOS. Accede al catálogo exclusivo, ofertas, control de stock y recompensas gamer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07070a;
+      --bg-card: rgba(18, 18, 26, 0.82);
+      --bg-card-hover: rgba(24, 24, 36, 0.95);
+      --gold-primary: #FACC15;
+      --gold-hover: #EAB308;
+      --gold-dark: #CA8A04;
+      --gold-glow: rgba(250, 204, 21, 0.35);
+      --gold-subtle: rgba(250, 204, 21, 0.12);
+      --text-main: #FFFFFF;
+      --text-muted: #A1A1AA;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-gold: rgba(250, 204, 21, 0.3);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-image: 
+        radial-gradient(circle at 50% -10%, rgba(250, 204, 21, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 10% 80%, rgba(234, 179, 8, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 90% 40%, rgba(250, 204, 21, 0.08) 0%, transparent 50%);
+    }
+
+    /* Ambient noise & grid lines */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header Nav */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #FACC15 0%, #CA8A04 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    .brand-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #000;
+    }
+
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .brand-name span {
+      color: var(--gold-primary);
+      text-shadow: 0 0 16px rgba(250, 204, 21, 0.5);
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(250, 204, 21, 0.1);
+      border: 1px solid rgba(250, 204, 21, 0.25);
+      color: var(--gold-primary);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--gold-primary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      color: var(--gold-primary);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(34px, 5.5vw, 54px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: linear-gradient(180deg, #FFFFFF 40%, #D4D4D8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-title .gold-text {
+      background: linear-gradient(135deg, #FEF08A 0%, #FACC15 50%, #EAB308 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(250, 204, 21, 0.35);
+    }
+
+    .hero-desc {
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      margin-bottom: 48px;
+    }
+
+    @media (min-width: 840px) {
+      .main-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-gold);
+    }
+
+    .card-qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* QR Frame with glowing effects */
+    .qr-frame {
+      position: relative;
+      background: #FFFFFF;
+      padding: 16px;
+      border-radius: 20px;
+      box-shadow: 0 0 35px rgba(250, 204, 21, 0.28), 0 10px 25px rgba(0,0,0,0.6);
+      margin: 20px 0 24px;
+      width: 240px;
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .qr-frame:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 50px rgba(250, 204, 21, 0.45), 0 15px 30px rgba(0,0,0,0.7);
+    }
+
+    .qr-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+    }
+
+    /* Scanning beam animation */
+    .qr-frame::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10px;
+      right: 10px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #FACC15, transparent);
+      box-shadow: 0 0 15px #FACC15;
+      animation: scan 3s ease-in-out infinite;
+      border-radius: 99px;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0%, 100% { top: 12px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      50% { top: 220px; }
+    }
+
+    .qr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000;
+      background: var(--gold-primary);
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 6px;
+    }
+
+    .qr-caption {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Buttons */
+    .btn-download {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      background: linear-gradient(135deg, #FACC15 0%, #EAB308 100%);
+      color: #000;
+      text-decoration: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      padding: 16px 28px;
+      border-radius: var(--radius-md);
+      transition: all 0.25s ease;
+      box-shadow: 0 10px 25px rgba(250, 204, 21, 0.35);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-download:hover {
+      background: linear-gradient(135deg, #FEF08A 0%, #FACC15 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(250, 204, 21, 0.5);
+    }
+
+    .btn-download svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      margin-top: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Steps Card */
+    .steps-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+
+    .steps-title svg {
+      width: 24px;
+      height: 24px;
+      color: var(--gold-primary);
+    }
+
+    .step-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      transition: background 0.2s ease;
+    }
+
+    .step-item:hover {
+      background: rgba(250, 204, 21, 0.04);
+      border-color: rgba(250, 204, 21, 0.15);
+    }
+
+    .step-number {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(250, 204, 21, 0.15);
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Features Pills */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .feature-pill {
+      background: rgba(18, 18, 26, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(250, 204, 21, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-primary);
+      flex-shrink: 0;
+    }
+
+    .feature-text h5 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .feature-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* iOS Section */
+    .ios-box {
+      background: linear-gradient(135deg, rgba(24, 24, 34, 0.8) 0%, rgba(18, 18, 26, 0.8) 100%);
+      border: 1px dashed rgba(250, 204, 21, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    @media (min-width: 640px) {
+      .ios-box {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .ios-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ios-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .ios-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .ios-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .ios-btn {
+      background: rgba(250, 204, 21, 0.15);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-primary);
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .ios-btn:hover {
+      background: var(--gold-primary);
+      color: #000;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 28px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-primary);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #181824;
+      border: 1px solid var(--gold-primary);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <a href="https://guccigamesbo.com" class="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+          </svg>
+        </div>
+        <div class="brand-name">Gucci <span>Games</span></div>
+      </a>
+      <div class="badge-live">
+        <span class="badge-dot"></span>
+        Versión Oficial 1.0.0
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="hero-tag">INSTALADOR OFICIAL ANDROID</span>
+      <h1 class="hero-title">
+        La Experiencia Gamer <br>
+        <span class="gold-text">En Tus Manos</span>
+      </h1>
+      <p class="hero-desc">
+        Catálogo en tiempo real, stock actualizado al instante, pedidos directos por WhatsApp y recompensas exclusivas con Puntos Gucci.
+      </p>
+    </section>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Card QR -->
+      <div class="card card-qr">
+        <span class="qr-badge">Escanea con tu Cámara</span>
+        <h3 style="font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; margin-top:6px; color:#fff;">
+          Descarga Inmediata
+        </h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+          Compatible con cualquier celular o tablet Android
+        </p>
+
+        <!-- QR Code Container -->
+        <div class="qr-frame">
+          <img src="apk_download_qr.png" alt="Código QR Descargar Gucci Games APK" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fexpo.dev%2Fartifacts%2Feas%2FsPlps0yz5tptfEvDEWWPP1BVjHLck6yi8FDIHwmv1hE.apk'">
+        </div>
+
+        <p class="qr-caption">Apunta la cámara de tu teléfono al código QR</p>
+
+        <!-- Direct Button -->
+        <a href="https://expo.dev/artifacts/eas/sPlps0yz5tptfEvDEWWPP1BVjHLck6yi8FDIHwmv1hE.apk" class="btn-download" download="GucciGames.apk">
+          <svg viewBox="0 0 24 24">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+          </svg>
+          Descargar APK Directo
+        </a>
+
+        <button onclick="copiarEnlace()" class="btn-secondary" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copiar enlace para compartir
+        </button>
+      </div>
+
+      <!-- Card Steps -->
+      <div class="card">
+        <h3 class="steps-title">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          Instalación en 3 Pasos
+        </h3>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Descarga el APK</h4>
+              <p>Escanea el código QR o pulsa el botón amarillo para iniciar la descarga en tu dispositivo Android.</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Permitir instalación</h4>
+              <p>Al abrir el archivo, si Android pregunta por <em>"Permitir desde esta fuente"</em>, pulsa <strong>Permitir</strong>.</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>¡Listo para jugar!</h4>
+              <p>Abre la app con el logo de Gucci Games. Revisa catálogo con stock y haz tus pedidos por WhatsApp.</p>
+            </div>
+          </li>
+        </ul>
+
+        <!-- Extra Info -->
+        <div style="margin-top:24px; padding:16px; background:rgba(250,204,21,0.06); border:1px solid rgba(250,204,21,0.18); border-radius:var(--radius-md);">
+          <div style="display:flex; align-items:center; gap:8px; color:var(--gold-primary); font-weight:700; font-size:13px; margin-bottom:4px;">
+            <span>🛡️</span> Seguro y Libre de Virus
+          </div>
+          <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">
+            Instalador verificado y compilado directamente por los servidores seguros de Expo EAS para Gucci Games.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Highlights -->
+    <div class="features-grid">
+      <div class="feature-pill">
+        <div class="feature-icon">🎮</div>
+        <div class="feature-text">
+          <h5>Catálogo Completo</h5>
+          <p>PS5, Nintendo Switch, Retro y MJU</p>
+        </div>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <h5>Control de Stock</h5>
+          <p>Unidades exactas en tiempo real</p>
+        </div>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">💎</div>
+        <div class="feature-text">
+          <h5>Puntos Gucci</h5>
+          <p>Acumula y canjea por descuentos</p>
+        </div>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">💬</div>
+        <div class="feature-text">
+          <h5>WhatsApp 1-Click</h5>
+          <p>Pedidos rápidos y atención directa</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- iOS Section -->
+    <div class="ios-box">
+      <div class="ios-left">
+        <div class="ios-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.36-.56.66-1.06 1.73-.93 2.76 1.01.08 2.05-.52 2.66-1.27z"/>
+          </svg>
+        </div>
+        <div>
+          <h4 class="ios-title">¿Tienes iPhone o iPad?</h4>
+          <p class="ios-desc">Ábrelo al instante usando la app gratuita Expo Go o guárdalo como Web App en tu pantalla de inicio.</p>
+        </div>
+      </div>
+      <a href="https://guccigamesbo.com" class="ios-btn">
+        Abrir en el Navegador
+        <span>→</span>
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-links">
+        <a href="https://guccigamesbo.com">Tienda Web</a>
+        <a href="https://wa.me/59177617306" target="_blank" rel="noopener">Soporte WhatsApp</a>
+        <a href="https://expo.dev/accounts/gabriells_sossa/projects/gucci-games/builds/178eb6b4-472a-43e3-8361-43ef7e8e4b96" target="_blank" rel="noopener">Registro Build Expo</a>
+      </div>
+      <p>© 2026 Gucci Games Bolivia. Todos los derechos reservados.</p>
+    </footer>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <span>✅</span> ¡Enlace copiado al portapapeles!
+  </div>
+
+  <script>
+    function copiarEnlace() {
+      const url = "https://expo.dev/artifacts/eas/sPlps0yz5tptfEvDEWWPP1BVjHLck6yi8FDIHwmv1hE.apk";
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => mostrarToast());
+      } else {
+        const input = document.createElement('input');
+        input.value = url;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        mostrarToast();
+      }
+    }
+
+    function mostrarToast() {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>

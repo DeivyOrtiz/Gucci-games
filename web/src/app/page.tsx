@@ -12,6 +12,7 @@ import type { Product, ProductCategory } from '@/lib/types'
 import { Zap, MessageCircle, X, Sparkles, Filter } from 'lucide-react'
 import { AuthModal } from '@/components/AuthModal'
 import { QuickCheckoutModal } from '@/components/QuickCheckoutModal'
+import { AppDownloadSection } from '@/components/AppDownloadSection'
 import { Footer } from '@/components/Footer'
 
 export default function HomePage() {
@@ -371,6 +372,9 @@ export default function HomePage() {
             </div>
           </div>
         )}
+
+        {/* Exclusive Gucci Games App Download Section with QR Code */}
+        <AppDownloadSection />
       </main>
 
       {/* Footer with full store location, schedule, phone, facebook and plus code */}
