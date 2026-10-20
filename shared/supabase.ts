@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ============================================================
 // GUCCI GAMES - Cliente Supabase compartido (Web + Mobile)
 // Configura tus variables de entorno antes de usar

@@ -6,6 +6,7 @@ import { ShoppingCart, Zap } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { buildWhatsAppLink, CATEGORY_LABELS } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
+import { parseStockFromDescription } from '@/lib/stockUtils'
 
 interface ProductCardProps {
   product: Product
@@ -113,6 +114,33 @@ export function ProductCard({ product, onAuthRequired, onBuy }: ProductCardProps
             +{product.points_reward} Puntos Gucci
           </span>
         </div>
+
+        {/* Stock status indicator */}
+        {(() => {
+          const { stock } = parseStockFromDescription(product.description);
+          return (
+            <div className="flex items-center gap-1.5 text-xs font-semibold">
+              {product.is_available && stock > 0 ? (
+                stock <= 2 ? (
+                  <span className="text-amber-500 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    ¡Solo quedan {stock}!
+                  </span>
+                ) : (
+                  <span className="text-emerald-500 dark:text-emerald-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    {stock} disponibles
+                  </span>
+                )
+              ) : (
+                <span className="text-red-500 font-bold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  Agotado
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Price + Button */}
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-zinc-100 dark:border-[#22222A]">

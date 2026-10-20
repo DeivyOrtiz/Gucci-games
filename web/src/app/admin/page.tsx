@@ -17,9 +17,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { optimizeProductImage, type ImageOptimizationResult } from '@/lib/imageOptimizer'
+import { parseStockFromDescription, formatStockInDescription } from '@/lib/stockUtils'
 
 type AdminTab = 'products' | 'clients' | 'settings'
-type ProductFormData = Omit<Product, 'id' | 'created_at' | 'updated_at'>
+type ProductFormData = Omit<Product, 'id' | 'created_at' | 'updated_at'> & { stock?: number }
 
 const emptyForm: ProductFormData = {
   title: '',
@@ -30,6 +31,7 @@ const emptyForm: ProductFormData = {
   image_url: '',
   points_reward: 10,
   is_available: true,
+  stock: 5,
 }
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
@@ -505,15 +507,17 @@ export default function AdminPage() {
 
   const openEdit = (product: Product) => {
     setEditingProduct(product)
+    const { stock, cleanDescription } = parseStockFromDescription(product.description)
     setFormData({
       title: product.title,
-      description: product.description ?? '',
+      description: cleanDescription,
       price: product.price,
       category: product.category,
       platform: product.platform,
       image_url: product.image_url,
       points_reward: product.points_reward,
       is_available: product.is_available,
+      stock: stock,
     })
     setImagePreview(product.image_url)
     setImageFile(null)
@@ -537,8 +541,16 @@ export default function AdminPage() {
       imageUrl = uploaded
     }
 
+    const currentStock = formData.stock !== undefined ? Number(formData.stock) : 5
+    const cleanDesc = formData.description ?? ''
+    const formattedDescription = formatStockInDescription(cleanDesc, currentStock)
+
     const payload = {
-      ...formData,
+      title: formData.title,
+      description: formattedDescription,
+      category: formData.category,
+      platform: formData.platform,
+      is_available: currentStock > 0 ? formData.is_available : false,
       image_url: imageUrl || '/images/categories/video-games.jpg',
       price: Number(formData.price),
       points_reward: Number(formData.points_reward) || 10,
@@ -969,8 +981,18 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                           <span className="text-[11px] text-zinc-500">{product.platform}</span>
                           <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: `${catColor}18`, color: catColor }}>{catLabel}</span>
+                          {(() => {
+                            const { stock } = parseStockFromDescription(product.description)
+                            if (stock <= 0) {
+                              return <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20">Agotado (0 uds.)</span>
+                            }
+                            if (stock <= 2) {
+                              return <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">¡Últimas {stock} uds!</span>
+                            }
+                            return <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">{stock} en stock</span>
+                          })()}
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${product.is_available ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-                            {product.is_available ? 'Disponible' : 'Oculto'}
+                            {product.is_available ? 'Visible' : 'Oculto'}
                           </span>
                         </div>
                       </div>
@@ -1281,8 +1303,8 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Price & Points */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Price, Points & Stock */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Precio (Bs.) *</label>
                   <input type="number" required min="0" step="0.01" value={formData.price || ''} onChange={(e) => setFormData(f => ({ ...f, price: Number(e.target.value) }))} placeholder="0" className="w-full bg-zinc-50 dark:bg-[#0D0D13] border border-zinc-200 dark:border-[#1E1E26] text-zinc-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-[#FACC15]/60 transition-colors" />
@@ -1290,6 +1312,33 @@ export default function AdminPage() {
                 <div>
                   <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Puntos Gucci</label>
                   <input type="number" min="0" value={formData.points_reward || ''} onChange={(e) => setFormData(f => ({ ...f, points_reward: Number(e.target.value) }))} placeholder="10" className="w-full bg-zinc-50 dark:bg-[#0D0D13] border border-zinc-200 dark:border-[#1E1E26] text-zinc-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-[#FACC15]/60 transition-colors" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">Stock (uds.) *</label>
+                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
+                      (formData.stock ?? 5) === 0 ? 'bg-red-500/20 text-red-500' : (formData.stock ?? 5) <= 2 ? 'bg-amber-500/20 text-amber-500' : 'bg-emerald-500/20 text-emerald-500'
+                    }`}>
+                      {(formData.stock ?? 5) === 0 ? 'Agotado' : (formData.stock ?? 5) <= 2 ? 'Poco stock' : 'OK'}
+                    </span>
+                  </div>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="1"
+                    value={formData.stock ?? 5}
+                    onChange={(e) => {
+                      const val = Math.max(0, parseInt(e.target.value, 10) || 0)
+                      setFormData(f => ({
+                        ...f,
+                        stock: val,
+                        is_available: val === 0 ? false : f.is_available,
+                      }))
+                    }}
+                    placeholder="5"
+                    className="w-full bg-zinc-50 dark:bg-[#0D0D13] border border-zinc-200 dark:border-[#1E1E26] text-zinc-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-[#FACC15]/60 transition-colors font-black text-amber-600 dark:text-[#FACC15]"
+                  />
                 </div>
               </div>
 
