@@ -207,6 +207,13 @@ export default function AdminPage() {
   const [isSavingPin, setIsSavingPin] = useState(false)
   const [showCurrentPin, setShowCurrentPin] = useState(false)
 
+  // Account Password configuration
+  const [newPasswordInput, setNewPasswordInput] = useState('')
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('')
+  const [passwordMsg, setPasswordMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const [isSavingPassword, setIsSavingPassword] = useState(false)
+  const [showAccountPassword, setShowAccountPassword] = useState(false)
+
   // Load configured PIN
   useEffect(() => {
     const loadPin = async () => {
@@ -288,11 +295,10 @@ export default function AdminPage() {
     if (!code) return
 
     const savedPin = typeof window !== 'undefined' ? localStorage.getItem('gucci_admin_pin') : null
-    const validPins = [activePin, savedPin, '2026', '1234', 'admin', 'gucci2026']
-      .filter(Boolean)
-      .map((p) => String(p).toLowerCase().trim())
+    // The current active PIN is the ONLY authorized pin (falls back to '2026' ONLY if never set)
+    const validCurrentPin = (activePin || savedPin || '2026').trim().toLowerCase()
 
-    if (validPins.includes(code)) {
+    if (code === validCurrentPin) {
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('gucci_admin_failed_attempts')
         localStorage.setItem('gucci_admin_session', 'true')
@@ -357,8 +363,23 @@ export default function AdminPage() {
       return
     }
 
-    // Option 2: Supabase Credentials
+    // Option 2: Supabase Credentials or PIN in password field
     if (loginIdentifier && loginPassword) {
+      const savedPin = typeof window !== 'undefined' ? localStorage.getItem('gucci_admin_pin') : null
+      const validCurrentPin = (activePin || savedPin || '2026').trim().toLowerCase()
+
+      // If user typed the current active admin PIN in the password field, accept access
+      if (loginPassword.trim().toLowerCase() === validCurrentPin) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('gucci_admin_failed_attempts')
+          localStorage.setItem('gucci_admin_session', 'true')
+        }
+        setIsLocallyAuthorized(true)
+        setIsLoggingIn(false)
+        setAuthError(null)
+        return
+      }
+
       const { error } = await signIn(loginIdentifier.trim(), loginPassword)
       if (error) {
         registerFailedAttempt()
@@ -405,7 +426,7 @@ export default function AdminPage() {
           localStorage.setItem('gucci_admin_pin', cleanPin)
         }
         setSettingsMsg({
-          text: `¡Clave actualizada exitosamente a "${cleanPin}"! Ahora puedes usarla para ingresar en la web y la app.`,
+          text: `¡Clave actualizada exitosamente a "${cleanPin}"! Se guardó en la nube y ahora es la única clave activa.`,
           type: 'success',
         })
         setNewPinInput('')
@@ -427,6 +448,55 @@ export default function AdminPage() {
       setConfirmPinInput('')
     } finally {
       setIsSavingPin(false)
+    }
+  }
+
+  const handleSaveNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordMsg(null)
+
+    if (newPasswordInput.trim().length < 6) {
+      setPasswordMsg({ text: 'La contraseña debe tener al menos 6 caracteres.', type: 'error' })
+      return
+    }
+
+    if (newPasswordInput.trim() !== confirmPasswordInput.trim()) {
+      setPasswordMsg({ text: 'Las contraseñas no coinciden. Por favor verifícalas.', type: 'error' })
+      return
+    }
+
+    setIsSavingPassword(true)
+    const cleanPassword = newPasswordInput.trim()
+
+    try {
+      if (profile) {
+        await supabase.auth.updateUser({ password: cleanPassword })
+      }
+
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newPassword: cleanPassword,
+          adminEmail: profile?.email || undefined,
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setPasswordMsg({
+          text: '¡Contraseña de administrador actualizada con éxito en la base de datos! Ahora puedes entrar con tu nueva contraseña.',
+          type: 'success',
+        })
+        setNewPasswordInput('')
+        setConfirmPasswordInput('')
+      } else {
+        setPasswordMsg({ text: data.error || 'Error al actualizar la contraseña.', type: 'error' })
+      }
+    } catch (err: any) {
+      setPasswordMsg({ text: err.message || 'Error al actualizar la contraseña.', type: 'error' })
+    } finally {
+      setIsSavingPassword(false)
     }
   }
 
@@ -1151,6 +1221,91 @@ export default function AdminPage() {
                       <>
                         <Check size={16} />
                         <span>Guardar y Aplicar Nueva Clave</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Card 2: Cambiar Contraseña de Cuenta Administrador */}
+            <div className="bg-white dark:bg-[#111118] border border-zinc-200 dark:border-[#1E1E26] rounded-2xl p-6 sm:p-8 shadow-xs">
+              <div className="flex items-center gap-3 mb-6 pb-6 border-b border-zinc-100 dark:border-[#1E1E26]">
+                <div className="w-12 h-12 bg-sky-500/15 dark:bg-[#38BDF8]/15 border border-sky-500/30 dark:border-[#38BDF8]/30 rounded-xl flex items-center justify-center text-sky-600 dark:text-[#38BDF8]">
+                  <Lock size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-zinc-950 dark:text-white">Contraseña de Cuenta Administrador</h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Modifica la contraseña de acceso para tu cuenta con usuario/correo (ej. deyvi@guccigames.app)
+                  </p>
+                </div>
+              </div>
+
+              {passwordMsg && (
+                <div
+                  className={`mb-5 p-3.5 rounded-xl border text-xs font-bold flex items-center gap-2 ${
+                    passwordMsg.type === 'success'
+                      ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-red-500/15 border-red-500/30 text-red-600 dark:text-red-300'
+                  }`}
+                >
+                  {passwordMsg.type === 'success' ? <Check size={16} className="text-emerald-500" /> : <X size={16} className="text-red-500" />}
+                  <span>{passwordMsg.text}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveNewPassword} className="space-y-5">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                      Nueva Contraseña de Cuenta (mínimo 6 caracteres)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowAccountPassword(!showAccountPassword)}
+                      className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 flex items-center gap-1 cursor-pointer"
+                    >
+                      {showAccountPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                      <span>{showAccountPassword ? 'Ocultar' : 'Mostrar'}</span>
+                    </button>
+                  </div>
+                  <input
+                    type={showAccountPassword ? 'text' : 'password'}
+                    minLength={6}
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    placeholder="Escribe la nueva contraseña..."
+                    className="w-full bg-zinc-50 dark:bg-[#0D0D13] border border-zinc-200 dark:border-[#1E1E26] text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-[#FACC15]/60 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wider">
+                    Confirmar Nueva Contraseña
+                  </label>
+                  <input
+                    type={showAccountPassword ? 'text' : 'password'}
+                    minLength={6}
+                    value={confirmPasswordInput}
+                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    placeholder="Repite la nueva contraseña..."
+                    className="w-full bg-zinc-50 dark:bg-[#0D0D13] border border-zinc-200 dark:border-[#1E1E26] text-zinc-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-[#FACC15]/60 transition-colors"
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSavingPassword || !newPasswordInput}
+                    className="w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-black py-3 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] shadow-md text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isSavingPassword ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Check size={16} />
+                        <span>Actualizar Contraseña de Cuenta</span>
                       </>
                     )}
                   </button>

@@ -8,6 +8,7 @@ export type ProductCategory = 'general' | 'mju' | 'retro'
 export interface Profile {
   id: string
   username: string
+  email?: string | null
   phone: string | null
   role: UserRole
   gucci_points: number

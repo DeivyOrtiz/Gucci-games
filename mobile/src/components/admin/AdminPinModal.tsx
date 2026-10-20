@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '@/lib/supabase';
 
 interface AdminPinModalProps {
   visible: boolean;
@@ -38,19 +39,34 @@ export default function AdminPinModal({
 
   const loadAdminPin = async () => {
     try {
+      // 1. Check local storage
       const stored = await AsyncStorage.getItem('gucci_admin_pin');
       if (stored) {
         setTargetPin(stored);
-      } else {
-        setTargetPin('2026');
+      }
+
+      // 2. Fetch live pin from Supabase cloud
+      const { data } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('role', 'admin')
+        .not('phone', 'is', null)
+        .limit(1);
+
+      if (data && data.length > 0 && data[0].phone) {
+        const clean = data[0].phone.replace(/^PIN:/i, '').trim();
+        if (clean.length >= 4) {
+          setTargetPin(clean);
+          await AsyncStorage.setItem('gucci_admin_pin', clean);
+        }
       }
     } catch {
-      setTargetPin('2026');
+      // Keep existing targetPin or default
     }
   };
 
   const handlePressDigit = (digit: string) => {
-    if (pin.length < 4) {
+    if (pin.length < 8) {
       const nextPin = pin + digit;
       setPin(nextPin);
       setErrorMsg('');
@@ -71,8 +87,8 @@ export default function AdminPinModal({
     const code = codeToVerify || pin;
     if (code.length === 0) return;
 
-    // Check valid PINs: configured pin, or master fallbacks 2026, 1234
-    if (code === targetPin || code === '2026' || code === '1234') {
+    // Check valid PIN: configured pin is the ONLY valid pin (defaults to '2026' only if never changed)
+    if (code === targetPin) {
       if (Platform.OS !== 'web') Vibration.vibrate(50);
       setAttempts(0);
       setPin('');
