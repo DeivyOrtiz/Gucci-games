@@ -34,6 +34,9 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
   isRecoveryMode: boolean;
   setIsRecoveryMode: (val: boolean) => void;
+  isGuest: boolean;
+  continueAsGuest: () => void;
+  exitGuestMode: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -53,6 +56,9 @@ const AuthContext = createContext<AuthContextType>({
   refreshProfile: async () => {},
   isRecoveryMode: false,
   setIsRecoveryMode: () => {},
+  isGuest: false,
+  continueAsGuest: () => {},
+  exitGuestMode: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -61,6 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
+
+  const continueAsGuest = () => setIsGuest(true);
+  const exitGuestMode = () => setIsGuest(false);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -350,6 +360,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshProfile,
         isRecoveryMode,
         setIsRecoveryMode,
+        isGuest,
+        continueAsGuest,
+        exitGuestMode,
       }}>
       {children}
     </AuthContext.Provider>

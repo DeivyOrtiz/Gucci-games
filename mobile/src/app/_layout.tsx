@@ -1,6 +1,7 @@
 import { DarkTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActivityIndicator, View } from 'react-native';
+import '@/global.css';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
@@ -11,7 +12,7 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { session, loading, isRecoveryMode, profile } = useAuth();
+  const { session, loading, isRecoveryMode, profile, isGuest } = useAuth();
 
   if (loading) {
     return (
@@ -27,7 +28,7 @@ function RootNavigator() {
     );
   }
 
-  if (!session || isRecoveryMode) {
+  if ((!session && !isGuest) || isRecoveryMode) {
     return <LoginScreen />;
   }
 

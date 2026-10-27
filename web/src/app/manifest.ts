@@ -1,0 +1,34 @@
+import type { MetadataRoute } from 'next'
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: 'Gucci Games - Tienda de Videojuegos',
+    short_name: 'Gucci Games',
+    description: 'Tu tienda gamer en Bolivia. Videojuegos físicos, retro y coleccionables.',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#0A0A0D',
+    theme_color: '#FACC15',
+    icons: [
+      {
+        src: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-maskable.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+    ],
+  }
+}
+

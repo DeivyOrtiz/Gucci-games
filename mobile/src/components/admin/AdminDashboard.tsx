@@ -66,6 +66,7 @@ export default function AdminDashboard({ onClose }: { onClose?: () => void }) {
   // Search & Filter
   const [productSearch, setProductSearch] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all');
+  const [productStockFilter, setProductStockFilter] = useState<'all' | 'low' | 'out' | 'available'>('all');
   const [userSearch, setUserSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
   const [rankingFilter, setRankingFilter] = useState<'all' | 'top'>('all');
@@ -434,6 +435,31 @@ export default function AdminDashboard({ onClose }: { onClose?: () => void }) {
       setProducts(products.map((p) => (p.id === prod.id ? { ...p, is_available: nextStock } : p)));
     } catch (err: any) {
       Alert.alert('Error', err.message);
+    }
+  };
+
+  const handleQuickUpdateStock = async (prod: Product, delta: number) => {
+    try {
+      const { stock, cleanDescription } = parseStockFromDescription(prod.description);
+      const newStock = Math.max(0, stock + delta);
+      const newDescription = formatStockInDescription(cleanDescription, newStock);
+      const nextAvailable = newStock > 0 ? (newStock === 1 && delta > 0 ? true : prod.is_available) : false;
+
+      // Optimistic update
+      setProducts(products.map((p) => (p.id === prod.id ? { ...p, description: newDescription, is_available: nextAvailable } : p)));
+
+      const { error } = await supabaseAdmin
+        .from('products')
+        .update({
+          description: newDescription,
+          is_available: nextAvailable,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', prod.id);
+
+      if (error) throw error;
+    } catch (err: any) {
+      Alert.alert('Error al actualizar stock', err.message);
     }
   };
 
@@ -866,6 +892,45 @@ export default function AdminDashboard({ onClose }: { onClose?: () => void }) {
                 ))}
               </ScrollView>
 
+              {/* Stock Filter Pills */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                <TouchableOpacity
+                  style={[styles.filterPill, productStockFilter === 'all' && styles.filterPillActive]}
+                  onPress={() => setProductStockFilter('all')}
+                  activeOpacity={0.8}>
+                  <Text style={[styles.filterPillText, productStockFilter === 'all' && styles.filterPillTextActive]}>
+                    📦 Todos ({products.length})
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.filterPill, productStockFilter === 'available' && { backgroundColor: '#10B981', borderColor: '#10B981' }]}
+                  onPress={() => setProductStockFilter('available')}
+                  activeOpacity={0.8}>
+                  <Text style={[styles.filterPillText, productStockFilter === 'available' && { color: '#FFFFFF', fontWeight: '800' }]}>
+                    ✓ En Stock ({products.filter((p) => { const { stock } = parseStockFromDescription(p.description); return stock > 2 && p.is_available; }).length})
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.filterPill, productStockFilter === 'low' && { backgroundColor: '#F59E0B', borderColor: '#F59E0B' }]}
+                  onPress={() => setProductStockFilter('low')}
+                  activeOpacity={0.8}>
+                  <Text style={[styles.filterPillText, productStockFilter === 'low' && { color: '#000000', fontWeight: '800' }]}>
+                    ⚠️ Stock Bajo ({products.filter((p) => { const { stock } = parseStockFromDescription(p.description); return stock > 0 && stock <= 2 && p.is_available; }).length})
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.filterPill, productStockFilter === 'out' && { backgroundColor: '#EF4444', borderColor: '#EF4444' }]}
+                  onPress={() => setProductStockFilter('out')}
+                  activeOpacity={0.8}>
+                  <Text style={[styles.filterPillText, productStockFilter === 'out' && { color: '#FFFFFF', fontWeight: '800' }]}>
+                    🚫 Agotados ({products.filter((p) => { const { stock } = parseStockFromDescription(p.description); return stock <= 0 || !p.is_available; }).length})
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               {/* Products List */}
               <View style={{ marginTop: 12 }}>
                 {products
@@ -875,7 +940,16 @@ export default function AdminDashboard({ onClose }: { onClose?: () => void }) {
                       p.platform.toLowerCase().includes(productSearch.toLowerCase());
                     const matchesCategory =
                       productCategoryFilter === 'all' || p.category === productCategoryFilter;
-                    return matchesSearch && matchesCategory;
+                    const { stock } = parseStockFromDescription(p.description);
+                    let matchesStock = true;
+                    if (productStockFilter === 'low') {
+                      matchesStock = stock > 0 && stock <= 2 && p.is_available;
+                    } else if (productStockFilter === 'out') {
+                      matchesStock = stock <= 0 || !p.is_available;
+                    } else if (productStockFilter === 'available') {
+                      matchesStock = stock > 2 && p.is_available;
+                    }
+                    return matchesSearch && matchesCategory && matchesStock;
                   })
                   .map((prod) => (
                     <View key={prod.id} style={styles.productAdminCard}>
@@ -901,24 +975,39 @@ export default function AdminDashboard({ onClose }: { onClose?: () => void }) {
                           </Text>
                         </Text>
 
-                        {/* Stock Info & Switch */}
+                        {/* Stock Info, Quick Stepper & Switch */}
                         <View style={styles.stockToggleRow}>
                           {(() => {
                             const { stock } = parseStockFromDescription(prod.description);
                             return (
-                              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#27272A', borderRadius: 8, padding: 2, gap: 2 }}>
+                                  <TouchableOpacity
+                                    style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: '#3F3F46', alignItems: 'center', justifyContent: 'center' }}
+                                    onPress={() => handleQuickUpdateStock(prod, -1)}
+                                    disabled={stock <= 0}
+                                    activeOpacity={0.7}>
+                                    <Ionicons name="remove" size={14} color={stock <= 0 ? '#71717A' : '#FFFFFF'} />
+                                  </TouchableOpacity>
+                                  <View style={{ paddingHorizontal: 6, alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 11, fontWeight: '800', color: stock <= 0 ? '#EF4444' : stock <= 2 ? '#F5A623' : '#10B981' }}>
+                                      {stock} uds
+                                    </Text>
+                                  </View>
+                                  <TouchableOpacity
+                                    style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: '#F5A623', alignItems: 'center', justifyContent: 'center' }}
+                                    onPress={() => handleQuickUpdateStock(prod, 1)}
+                                    activeOpacity={0.7}>
+                                    <Ionicons name="add" size={14} color="#000000" />
+                                  </TouchableOpacity>
+                                </View>
                                 <Text
                                   style={[
                                     styles.stockToggleLabel,
                                     { color: prod.is_available ? '#34D399' : '#EF4444' },
                                   ]}>
-                                  {prod.is_available ? '● En Stock' : '○ Agotado'}
+                                  {prod.is_available ? '● Visible' : '○ Oculto'}
                                 </Text>
-                                <View style={{ backgroundColor: stock > 2 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                                  <Text style={{ fontSize: 11, fontWeight: '700', color: stock > 2 ? '#10B981' : '#EF4444' }}>
-                                    {stock} {stock === 1 ? 'unidad' : 'unidades'}
-                                  </Text>
-                                </View>
                               </View>
                             );
                           })()}
@@ -1583,6 +1672,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0B0B0E',
+    width: '100%',
+    maxWidth: 1360,
+    alignSelf: 'center',
   },
   header: {
     backgroundColor: '#121217',

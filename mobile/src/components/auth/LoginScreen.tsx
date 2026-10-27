@@ -26,7 +26,7 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function LoginScreen() {
-  const { signIn, signUp, sendResetOtp, verifyResetOtp, updatePassword, signOut, isRecoveryMode } = useAuth();
+  const { signIn, signUp, sendResetOtp, verifyResetOtp, updatePassword, signOut, isRecoveryMode, continueAsGuest } = useAuth();
 
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [identifier, setIdentifier] = useState('');
@@ -368,6 +368,15 @@ export default function LoginScreen() {
                   }}
                   activeOpacity={0.8}>
                   <Text style={styles.secondaryButtonText}>Registrarse</Text>
+                </TouchableOpacity>
+
+                {/* Explore as Guest Button */}
+                <TouchableOpacity
+                  style={styles.guestButton}
+                  onPress={continueAsGuest}
+                  activeOpacity={0.8}>
+                  <Ionicons name="game-controller-outline" size={17} color="#F5A623" style={{ marginRight: 6 }} />
+                  <Text style={styles.guestButtonText}>Explorar Catálogo como Invitado</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -873,7 +882,12 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
-    maxWidth: 360,
+    maxWidth: 420,
+    backgroundColor: '#131318',
+    padding: 24,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#242430',
   },
   inputWrapper: {
     position: 'relative',
@@ -951,6 +965,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.2,
+  },
+  guestButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 14,
+    paddingVertical: 13,
+    borderRadius: 26,
+    backgroundColor: 'rgba(245, 166, 35, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 166, 35, 0.3)',
+  },
+  guestButtonText: {
+    color: '#F5A623',
+    fontSize: 14,
+    fontWeight: '700',
   },
   buttonDisabled: {
     opacity: 0.7,

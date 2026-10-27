@@ -21,3 +21,4 @@ export function formatStockInDescription(cleanDesc: string, stock: number): stri
   const trimmed = (cleanDesc || '').replace(/\[STOCK:\s*\d+\]\s*/gi, '').trim();
   return trimmed ? `[STOCK:${safeStock}] ${trimmed}` : `[STOCK:${safeStock}]`;
 }
+
